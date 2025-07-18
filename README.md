@@ -1,12 +1,6 @@
-# 🚀 Microservices Architecture - API1 (Golang) + API2 (Python)
+# AI Thailand Hackathon 2025 Quiz by Ex_Machina
 
-## 📋 Overview
-
-This project implements a simple microservices architecture where:
-- **User** sends requests to **API1** (Golang)
-- **API1** forwards requests to **API2** (Python) 
-- **API2** processes the request and returns response
-- **API1** sends the final response back to the **User**
+## API1 (Golang) + API2 (Python)
 
 ```
 User → API1 (Golang:8080) → API2 (Python:8081) → Response → User
@@ -27,21 +21,14 @@ User → API1 (Golang:8080) → API2 (Python:8081) → Response → User
 ### API1 - Golang Service (Gateway)
 - **Language**: Go
 - **Port**: 8080
-- **Role**: Receives user requests and forwards to API2
 - **Endpoints**:
-  - `GET /` - Hello World endpoint
-  - `GET/POST /api/hello` - API endpoint
-- **Logging**: Yes ✅
+  - `GET /` - Forwards request to API2 and returns response
 
 ### API2 - Python Service (Backend)  
 - **Language**: Python (Flask)
 - **Port**: 8081
-- **Role**: Processes requests and returns responses
 - **Endpoints**:
-  - `GET /` - Hello World endpoint
-  - `GET/POST /api/hello` - API endpoint
-  - `GET /health` - Health check
-- **Logging**: Yes ✅
+  - `GET /` - Returns hello message
 
 ## 🚀 Quick Start
 
@@ -60,30 +47,13 @@ docker-compose up --build -d
 
 ### 2. Test the APIs
 
-#### Test Hello World
+#### Test the Service Chain
 ```bash
 # Test via API1 (which forwards to API2)
 curl http://localhost:8080/
 
 # Direct test API2
 curl http://localhost:8081/
-```
-
-#### Test API Endpoint
-```bash
-# GET request
-curl http://localhost:8080/api/hello
-
-# POST request with data
-curl -X POST http://localhost:8080/api/hello \
-  -H "Content-Type: application/json" \
-  -d '{"message": "Hello from user!"}'
-```
-
-#### Health Check
-```bash
-# Check API2 health
-curl http://localhost:8081/health
 ```
 
 ### 3. View Logs
@@ -110,23 +80,21 @@ docker-compose down -v
 
 ## 📊 Expected Response
 
-### Hello World Response
+### API Response Format
 ```json
 {
-  "message": "Hello from API1 (Golang)!",
-  "status": "success",
-  "timestamp": "2025-07-18T10:30:00Z",
-  "processed_by": "API1-Golang",
-  "from_api2": {
-    "message": "Hello from API2 (Python)! 🐍",
-    "status": "success",
-    "timestamp": "2025-07-18T10:30:00Z",
-    "processed_by": "API2-Python",
-    "language": "Python",
-    "framework": "Flask"
-  }
+  "message": "Hello from API2"
 }
 ```
+
+### Example Request Flow
+1. **User** → `GET http://localhost:8080/`
+2. **API1** → Logs: "API1: Received request, calling API2"
+3. **API1** → Calls `GET http://api2:8081/`
+4. **API2** → Logs: "API2: Received request"
+5. **API2** → Returns `{"message": "Hello from API2"}`
+6. **API1** → Logs: "API1: Got response from API2: Hello from API2"
+7. **API1** → Returns same response to user
 
 ## 🔧 Development
 
@@ -135,6 +103,7 @@ docker-compose down -v
 #### API1 (Golang)
 ```bash
 cd service-1
+export SERVICE_2_URL="http://localhost:8081"
 go run main.go
 # Runs on http://localhost:8080
 ```
@@ -142,7 +111,7 @@ go run main.go
 #### API2 (Python)
 ```bash
 cd service-2
-pip install -r requirements.txt
+pip install flask
 python app.py
 # Runs on http://localhost:8081
 ```
@@ -153,73 +122,45 @@ python app.py
 ├── docker-compose.yml          # Docker orchestration
 ├── README.md                   # This file
 ├── service-1/                  # API1 - Golang Service
-│   ├── main.go                # Go application
+│   ├── main.go                # Go application (35 lines)
 │   ├── go.mod                 # Go modules
 │   └── Dockerfile             # Docker config
 └── service-2/                  # API2 - Python Service
-    ├── app.py                 # Python Flask app
+    ├── app.py                 # Python Flask app (18 lines)
     ├── requirements.txt       # Python dependencies
     └── Dockerfile             # Docker config
 ```
-
-## 🌟 Features
-
-- ✅ **Simple Hello World** implementation
-- ✅ **Request forwarding** from API1 to API2
-- ✅ **Comprehensive logging** in both services
-- ✅ **Docker containerization**
-- ✅ **Docker Compose** orchestration
-- ✅ **Health checks**
-- ✅ **Error handling**
-- ✅ **JSON responses**
-- ✅ **Cross-service communication**
 
 ## 📝 API Endpoints Summary
 
 | Service | Endpoint | Method | Description |
 |---------|----------|--------|-------------|
-| API1 | `/` | GET | Hello World (forwards to API2) |
-| API1 | `/api/hello` | GET/POST | API endpoint (forwards to API2) |
-| API2 | `/` | GET/POST | Hello World |
-| API2 | `/api/hello` | GET/POST | API endpoint |
-| API2 | `/health` | GET | Health check |
+| API1 | `/` | GET | Forwards to API2 and returns response |
+| API2 | `/` | GET | Returns hello message |
 
-## 🔍 Troubleshooting
+### Debug / Monitor Commands
 
-### Common Issues
-1. **Port conflicts**: Make sure ports 8080 and 8081 are available
-2. **Docker issues**: Ensure Docker is running
-3. **Network issues**: Check if services can communicate within Docker network
-
-### Debug Commands
 ```bash
 # Check running containers
 docker ps
 
-# Check logs
+# Check container logs
 docker-compose logs api1
 docker-compose logs api2
 
-# Restart specific service
-docker-compose restart api1
+# Test connectivity between services
+docker-compose exec api1 wget -qO- http://api2:8081/
 
-# Rebuild specific service
-docker-compose up --build api1
+# Restart services
+docker-compose restart
 ```
 
-## 🎯 Next Steps
-
-To extend this project, you could add:
-- Database integration
-- Authentication
-- More complex business logic
-- API documentation (Swagger)
-- Monitoring and metrics
-- Load balancing
-- Message queues
-
----
-
-**สร้างโดย**: AI Thailand Project 🇹🇭  
-**เทคโนโลยี**: Golang + Python + Docker  
-**วัตถุประสงค์**: แสดงการทำงานของ Microservices Architecture
+### Expected Log Output
+```
+api1-golang  | 2025/07/18 13:42:35 API1 starting on :8080
+api2-python  | INFO:__main__:API2 starting on port 8081
+api1-golang  | 2025/07/18 13:42:35 API1: Received request, calling API2
+api2-python  | INFO:__main__:API2: Received request
+api2-python  | INFO:__main__:API2: Sending response: Hello from API2
+api1-golang  | 2025/07/18 13:42:35 API1: Got response from API2: Hello from API2
+```
