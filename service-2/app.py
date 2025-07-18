@@ -14,6 +14,7 @@ def hello():
     logger.info(f"API2: Sending response: {response['message']}")
     return jsonify(response)
 
-port = int(os.environ.get('PORT', 8081))
-logger.info(f"API2 starting on port {port}")
-app.run(host='0.0.0.0', port=port)
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 8081))
+    logger.info(f"API2 starting on port {port}")
+    app.run(host='0.0.0.0', port=port)
