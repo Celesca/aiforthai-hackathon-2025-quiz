@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"os"
 )
 
 type Response struct {
@@ -17,11 +16,7 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		log.Println("API1: Received request, calling API2")
 
-		// Call API2
-		service2URL := os.Getenv("SERVICE_2_URL")
-		if service2URL == "" {
-			service2URL = "http://localhost:8081"
-		}
+		service2URL := "http://localhost:8081"
 
 		resp, err := http.Get(service2URL)
 		if err != nil {
