@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  # API1 - Golang Service (Gateway)
+  api1:
+    build:
+      context: ./service-1
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVICE_2_URL=http://api2:8081
+    depends_on:
+      - api2
+    networks:
+      - app-network
+    container_name: api1-golang
+
+  # API2 - Python Service (Backend)
+  api2:
+    build:
+      context: ./service-2
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - PORT=8081
+    networks:
+      - app-network
+    container_name: api2-python
+
+networks:
+  app-network:
+    driver: bridge
